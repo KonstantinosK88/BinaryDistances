@@ -1,0 +1,442 @@
+## Example Matrix:
+w <- c(1,0,0,1,1,0,1,1,1)
+x <- c(0,1,0,0,0,1,0,0,1)
+y <- c(0,0,1,0,0,0,0,0,1)
+z <- c(1,1,0,0,0,1,0,0,0)
+
+
+m <- cbind(w,x,y,z)
+m
+
+
+binary.dist <- function(m, method = "jaccard", row.dist = FALSE, diag = FALSE, upper = FALSE){
+  ##----------------------------------------------------------------------------------
+  ## m is a binary matrix, or a data-frame of 0s and 1s.
+  ##
+  ## The method argument takes the values "jaccard", "simple", "rogers-tanimoto"
+  ## "anderberg-sokal-sneath", "sokal-sneath" and "gower-legendre". 
+  ## Its default value is "jaccard".
+  ##
+  ## row.dist represents the way one needs to calculate the distances. If it is
+  ## TRUE, then distances between the rows are calculated according to the method 
+  ## chosen. And if it is FALSE, then the distances between each column is calculated.
+  ##----------------------------------------------------------------------------------
+  if(is.matrix(m)==FALSE & is.data.frame(m)==FALSE){
+     warning("ERROR: The object you are trying to use is not a matrix or a data-frame.")
+  }else{ 
+
+   if(is.data.frame(m)==TRUE){m <- as.matrix(m)}
+
+   if(row.dist==FALSE){
+
+     dist.mat <- matrix(0, nrow=ncol(m), ncol=ncol(m)) # pre-allocate the distance matrix.
+     colnames(dist.mat) <- colnames(m)
+     rownames(dist.mat) <- colnames(m)
+  
+     ######## The Jaccard (or Tanimoto) Distance ########
+      if(method == "jaccard"||method=="jaccar"||method=="jacca"||method=="jacc"||method=="jac"||method=="tanimoto"||method=="tanimot"||method=="tanimo"||method=="tanim"||method=="tani"||method=="tan"||method=="ta"||method==1){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(table(m[,i],m[,j])[2,2]/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[2,2]))
+        }
+       }
+      }
+
+     ######## The Sorensen-Dice (or Czekanowski or Nei & Li) Distance ########
+      if(method=="sd"||method=="dice"||method=="dic"||method=="czekanowski"||method=="czekanowsk"||method=="czekanows"||method=="czekanow"||method=="czekano"||method=="czekan"||method=="czeka"||method=="czek"||method=="cze"||method=="nei-li"||method=="nei-l"||method=="nei-"||method=="nl"||method==2){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((2*table(m[,i],m[,j])[2,2])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+2*table(m[,i],m[,j])[2,2]))
+        }
+       }
+      }
+
+     ######## The 3W-Jaccard Distance ########
+      if(method == "3w-jaccard"||method == "3w-jaccar"||method == "3w-jacca"||method == "3w-jacc"||method == "3w-jac"||method == "3w-ja"||method == "3w-j"||method=="3w"||method=="3wjacc"||method=="3wj"||method==3){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((3*table(m[,i],m[,j])[2,2])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+3*table(m[,i],m[,j])[2,2]))
+        }
+       }
+      }
+
+     ######## The Simple Matching (or Sokal & Michener) Distance ########
+      if(method == "simple matching"||method == "simple matchin"||method == "simple matchi"||method == "simple match"||method == "simple matc"||method == "simple mat"||method == "simple ma"||method == "simple m"||method == "simple"||method == "simpl"||method == "simp"||method == "sim"||method=="sokal-michener"||method=="sokal-michene"||method=="sokal-michen"||method=="sokal-miche"||method=="sokal-mich"||method=="sokal-mic"||method=="sokal-mi"||method=="sokal-m"||method=="sokal-m"||method=="sm"||method==4){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))
+        }
+       }
+      }
+
+     ######## The Sokal & Sneath I Distance ########
+      if(method == "sokal-sneath 1"||method=="sokal-sneat 1"||method=="sokal-snea 1"||method=="sokal-sne 1"||method=="sokal-sn 1"||method=="sokal-s 1"||method=="ss1"||method=="ss 1"||method=="sokal-sneath I"||method=="sokal-sneat I"||method=="sokal-snea I"||method=="sokal-sne I"||method=="sokal-sn I"||method=="sokal-sn I"||method=="sokal-s I"||method=="ssi"||method=="ss i"||method==5){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(table(m[,i],m[,j])[2,2]/(2*(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1])+table(m[,i],m[,j])[2,2]))
+        }
+       }
+      }
+
+     ######## The Sokal & Sneath II Distance ########
+      if(method == "sokal-sneath 2"||method=="sokal-sneat 2"||method=="sokal-snea 2"||method=="sokal-sne 2"||method=="sokal-sn 2"||method=="sokal-s 2"||method=="ss2"||method=="ss 2"||method=="sokal-sneath II"||method=="sokal-sneat II"||method=="sokal-snea II"||method=="sokal-sne II"||method=="sokal-sn II"||method=="sokal-s II"||method=="ssii"||method=="ss ii"||method==6){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((2*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+2*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1])))
+        }
+       }
+      }
+
+     ######## The Sokal & Sneath III Distance ########
+      if(method == "sokal-sneath 3"||method=="sokal-sneat 3"||method=="sokal-snea 3"||method=="sokal-sne 3"||method=="sokal-sn 3"||method=="sokal-s 3"||method=="ss3"||method=="ss 3"||method=="sokal-sneath III"||method=="sokal-sneath III"||method=="sokal-sneat III"||method=="sokal-snea III"||method=="sokal-sne III"||method=="sokal-sn III"||method=="sokal-s III"||method=="ssiii"||method=="ss iii"||method==7){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]))
+        }
+       }
+      }
+
+     ######## The Sokal & Sneath IV Distance ########
+      if(method == "sokal-sneath 4"||method=="sokal-sneat 4"||method=="sokal-snea 4"||method=="sokal-sne 4"||method=="sokal-sn 4"||method=="sokal-s 4"||method=="ss4"||method=="ss 4"||method=="sokal-sneath IV"||method=="sokal-sneat IV"||method=="sokal-snea IV"||method=="sokal-sne IV"||method=="sokal-sn IV"||method=="sokal-s IV"||method=="ssiv"||method=="ss iv"||method==8){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(0.25*(table(m[,i],m[,j])[2,2]/(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])+table(m[,i],m[,j])[2,2]/(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])+table(m[,i],m[,j])[1,1]/(table(m[,i],m[,j])[1,1]+table(m[,i],m[,j])[2,1])+table(m[,i],m[,j])[1,1]/(table(m[,i],m[,j])[1,1]+table(m[,i],m[,j])[1,2])))
+        }
+       }
+      }
+
+     ######## The Sokal & Sneath V Distance ########
+      if(method == "sokal-sneath 5"||method=="sokal-sneat 5"||method=="sokal-snea 5"||method=="sokal-sne 5"||method=="sokal-sn 5"||method=="sokal-s 5"||method=="ss5"||method=="ss 5"||method=="sokal-sneath V"||method=="sokal-sneat V"||method=="sokal-snea V"||method=="sokal-sne V"||method=="sokal-sn V"||method=="sokal-s V"||method=="ssv"||method=="ss v"||method=="ochiai II"||method=="ochia II"||method=="ochi II"||method=="och II"||method=="oc II"||method=="o II"||method=="o2"||method=="o 2"||method=="oii"||method=="o ii"||method==9){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]*table(m[,i],m[,j])[1,1])/(sqrt(((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])*(table(m[,i],m[,j])[1,1]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[1,1]+table(m[,i],m[,j])[1,2])))))
+        }
+       }
+      }
+
+     ######## The Rogers & Tanimoto Distance ########
+      if(method == "rogers-tanimoto"||method=="rogers-tanimot"||method=="rogers-tanimo"||method=="rogers-tanim"||method=="rogers-tani"||method=="rogers-tan"||method=="rogers-ta"||method=="rogers-t"||method=="rogers-"||method=="roger"||method=="roge"||method=="rog"||method=="rt"||method==10){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1])/(2*(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1])+table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))
+        }
+       }
+      }
+
+     ######## The Faith Distance ########
+      if(method == "faith"||method=="fait"||method=="fai"||method=="fa"||method=="f"||method==11){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]+0.5*table(m[,i],m[,j])[1,1])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))
+        }
+       }
+      }
+
+     ######## The Gower & Legendre Distance ########
+      if(method == "gower-legendre"||method=="gower-legendr"||method=="gower-legend"||method=="gower-legen"||method=="gower-lege"||method=="gower-leg"||method=="gower-le"||method=="gower-l"||method=="gower-"||method=="gower"||method=="gowe"||method=="gow"||method=="gl"||method==12){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1])/(0.5*(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1])+table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))
+        }
+       }
+      }
+
+     ######## The Russell & Rao Distance ########
+      if(method == "russell-rao"||method=="russell-ra"||method=="russell-r"||method=="russell-"||method=="russell"||method=="russel"||method=="russe"||method=="russ"||method=="rus"||method=="rr"||method==13){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2])/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,1]))
+        }
+       }
+      }
+
+     ######## The Ochiai I (or Otsuka & Ochiai, or Cosine, or Fowlkes and Mallows Index) Distance ########
+      if(method == "Ochiai I"||method=="ochiai I"||method=="o1"||method=="oi"||method == "Cosine"||method=="cosine"||method=="cos"||method == "Otsuka-Ochiai"||method=="otsuka-ochiai"||method=="oo"||method == "Fowlkes-Mallows"||method=="fowlkes-mallows"||method=="fm"||method==14){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((table(m[,i],m[,j])[2,2])/(sqrt((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2]))))
+        }
+       }
+      }
+
+     ######## The Forbes I Distance ########
+      if(method == "Forbes I"||method=="forbes I"||method=="f1"||method=="fi"||method==15){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*(table(m[,i],m[,j])[2,2]))/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))
+        }
+       }
+      }
+
+     ######## The Forbes II Distance ########
+      if(method == "Forbes II"||method=="forbes II"||method=="f2"||method=="fii"||method==16){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*(table(m[,i],m[,j])[2,2])-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*(min((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]),(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2]))-(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2]))))
+        }
+       }
+      }
+
+     ######## The Fossum Distance ########
+      if(method == "Fossum"||method == "Fossu"||method == "Foss"||method == "Fos"||method=="fossum"||method=="fossu"||method=="foss"||method=="fos"||method==17){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*((table(m[,i],m[,j])[2,2]-0.5)^2))/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))
+        }
+       }
+      }
+
+     ######## The Sorgenfrei Distance ########
+      if(method == "Sorgenfrei"||method == "Sorgenfre"||method == "Sorgenfr"||method == "Sorgenf"||method == "Sorgen"||method == "Sorge"||method == "Sorg"||method=="sorgenfrei"||method=="sorgenfre"||method=="sorgenfr"||method=="sorgenf"||method=="sorgen"||method=="sorge"||method=="sorg"||method==18){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(((table(m[,i],m[,j])[2,2])^2)/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))
+        }
+       }
+      }
+
+     ######## The Mountford Distance ########
+      if(method == "Mountford"||method=="mountford"||method=="mount"||method==19){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(table(m[,i],m[,j])[2,2]/(0.5*(table(m[,i],m[,j])[2,2]*table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[2,2]*table(m[,i],m[,j])[1,2])+table(m[,i],m[,j])[2,1]*table(m[,i],m[,j])[1,2]))
+        }
+       }
+      }
+
+     ######## The McConnaughey Distance ########
+      if(method == "McConnaughey"||method=="Mcconnaughey"||method=="mcconnaughey"||method=="mccon"||method==20){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-((((table(m[,i],m[,j])[2,2])^2)-(table(m[,i],m[,j])[2,1]*table(m[,i],m[,j])[1,2]))/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))
+        }
+       }
+      }
+
+     ######## The Tarwid Distance ########
+      if(method == "Tarwid"||method=="tarwid"||method=="tar"||method==21){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*(table(m[,i],m[,j])[2,2])-((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2])))/((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1]+table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[1,1])*(table(m[,i],m[,j])[2,2])+((table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[2,1])*(table(m[,i],m[,j])[2,2]+table(m[,i],m[,j])[1,2]))))
+        }
+       }
+      }
+
+     ######## The Kulczynski I Distance ########
+      if(method == "Kulczynski I"||method=="kulczynski I"||method=="kul1"||method=="kuli"||method==22){
+       for(i in 1:ncol(m)){
+        for(j in 1:ncol(m)){
+           dist.mat[i,j] <- 1-(table(m[,i],m[,j])[2,2]/(table(m[,i],m[,j])[1,2]+table(m[,i],m[,j])[2,1]))
+        }
+       }
+      }
+     return(as.dist(dist.mat, diag = diag, upper = upper))
+
+     } else {
+
+
+      dist.mat <- matrix(0, nrow=nrow(m), ncol=nrow(m)) # pre-allocate the distance matrix.
+      colnames(dist.mat) <- rownames(m)
+      rownames(dist.mat) <- rownames(m)
+  
+     ######## The Jaccard (or Tanimoto) Distance ########
+      if(method == "jaccard"||method=="jaccar"||method=="jacca"||method=="jacc"||method=="jac"||method=="tanimoto"||method=="tanimot"||method=="tanimo"||method=="tanim"||method=="tani"||method=="tan"||method=="ta"||method==1){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(table(m[i,],m[j,])[2,2]/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[2,2]))
+         }
+        }
+       }
+      
+     ######## The Sorensen-Dice (or Czekanowski or Nei & Li) Distance ########
+      if(method=="sd"||method=="dice"||method=="dic"||method=="czekanowski"||method=="czekanowsk"||method=="czekanows"||method=="czekanow"||method=="czekano"||method=="czekan"||method=="czeka"||method=="czek"||method=="cze"||method=="nei-li"||method=="nei-l"||method=="nei-"||method=="nl"||method==2){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((2*table(m[i,],m[j,])[2,2])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+2*table(m[i,],m[j,])[2,2]))
+         }
+        }
+       }
+
+     ######## The 3W-Jaccard Distance ########
+      if(method == "3w-jaccard"||method == "3w-jaccar"||method == "3w-jacca"||method == "3w-jacc"||method == "3w-jac"||method == "3w-ja"||method == "3w-j"||method=="3w"||method=="3wjacc"||method=="3wj"||method==3){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((3*table(m[i,],m[j,])[2,2])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+3*table(m[i,],m[j,])[2,2]))
+         }
+        }
+       }
+
+     ######## The Simple Matching (or Sokal & Michener) Distance ########
+      if(method == "simple matching"||method == "simple matchin"||method == "simple matchi"||method == "simple match"||method == "simple matc"||method == "simple mat"||method == "simple ma"||method == "simple m"||method == "simple"||method == "simpl"||method == "simp"||method == "sim"||method=="sokal-michener"||method=="sokal-michene"||method=="sokal-michen"||method=="sokal-miche"||method=="sokal-mich"||method=="sokal-mic"||method=="sokal-mi"||method=="sokal-m"||method=="sokal-m"||method=="sm"||method==4){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))
+         }
+        }
+       }
+
+     ######## The Sokal & Sneath I Distance ########
+      if(method == "sokal-sneath 1"||method=="sokal-sneat 1"||method=="sokal-snea 1"||method=="sokal-sne 1"||method=="sokal-sn 1"||method=="sokal-s 1"||method=="ss1"||method=="ss 1"||method=="sokal-sneath I"||method=="sokal-sneat I"||method=="sokal-snea I"||method=="sokal-sne I"||method=="sokal-sn I"||method=="sokal-sn I"||method=="sokal-s I"||method=="ssi"||method=="ss i"||method==5){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(table(m[i,],m[j,])[2,2]/(2*(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1])+table(m[i,],m[j,])[2,2]))
+         }
+        }
+       }
+
+     ######## The Sokal & Sneath II Distance ########
+      if(method == "sokal-sneath 2"||method=="sokal-sneat 2"||method=="sokal-snea 2"||method=="sokal-sne 2"||method=="sokal-sn 2"||method=="sokal-s 2"||method=="ss2"||method=="ss 2"||method=="sokal-sneath II"||method=="sokal-sneat II"||method=="sokal-snea II"||method=="sokal-sne II"||method=="sokal-sn II"||method=="sokal-s II"||method=="ssii"||method=="ss ii"||method==6){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((2*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+2*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1])))
+         }
+        }
+       }
+
+     ######## The Sokal & Sneath III Distance ########
+      if(method == "sokal-sneath 3"||method=="sokal-sneat 3"||method=="sokal-snea 3"||method=="sokal-sne 3"||method=="sokal-sn 3"||method=="sokal-s 3"||method=="ss3"||method=="ss 3"||method=="sokal-sneath III"||method=="sokal-sneath III"||method=="sokal-sneat III"||method=="sokal-snea III"||method=="sokal-sne III"||method=="sokal-sn III"||method=="sokal-s III"||method=="ssiii"||method=="ss iii"||method==7){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]))
+         }
+        }
+       }
+
+     ######## The Sokal & Sneath IV Distance ########
+      if(method == "sokal-sneath 4"||method=="sokal-sneat 4"||method=="sokal-snea 4"||method=="sokal-sne 4"||method=="sokal-sn 4"||method=="sokal-s 4"||method=="ss4"||method=="ss 4"||method=="sokal-sneath IV"||method=="sokal-sneat IV"||method=="sokal-snea IV"||method=="sokal-sne IV"||method=="sokal-sn IV"||method=="sokal-s IV"||method=="ssiv"||method=="ss iv"||method==8){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(0.25*(table(m[i,],m[j,])[2,2]/(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])+table(m[i,],m[j,])[2,2]/(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])+table(m[i,],m[j,])[1,1]/(table(m[i,],m[j,])[1,1]+table(m[i,],m[j,])[2,1])+table(m[i,],m[j,])[1,1]/(table(m[i,],m[j,])[1,1]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+     ######## The Sokal & Sneath V Distance ########
+      if(method == "sokal-sneath 5"||method=="sokal-sneat 5"||method=="sokal-snea 5"||method=="sokal-sne 5"||method=="sokal-sn 5"||method=="sokal-s 5"||method=="ss5"||method=="ss 5"||method=="sokal-sneath V"||method=="sokal-sneat V"||method=="sokal-snea V"||method=="sokal-sne V"||method=="sokal-sn V"||method=="sokal-s V"||method=="ssv"||method=="ss v"||method=="ochiai II"||method=="ochia II"||method=="ochi II"||method=="och II"||method=="oc II"||method=="o II"||method=="o2"||method=="o 2"||method=="oii"||method=="o ii"||method==9){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]*table(m[i,],m[j,])[1,1])/(sqrt(((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])*(table(m[i,],m[j,])[1,1]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[1,1]+table(m[i,],m[j,])[1,2])))))
+         }
+        }
+       }
+
+     ######## The Rogers & Tanimoto Distance ########
+      if(method == "rogers-tanimoto"||method=="rogers-tanimot"||method=="rogers-tanimo"||method=="rogers-tanim"||method=="rogers-tani"||method=="rogers-tan"||method=="rogers-ta"||method=="rogers-t"||method=="rogers-"||method=="roger"||method=="roge"||method=="rog"||method=="rt"||method==10){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1])/(2*(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1])+table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))
+         }
+        }
+       }
+
+     ######## The Faith Distance ########
+      if(method == "faith"||method=="fait"||method=="fai"||method=="fa"||method=="f"||method==11){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]+0.5*table(m[i,],m[j,])[1,1])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))
+         }
+        }
+       }
+
+     ######## The Gower & Legendre Distance ########
+      if(method == "gower-legendre"||method=="gower-legendr"||method=="gower-legend"||method=="gower-legen"||method=="gower-lege"||method=="gower-leg"||method=="gower-le"||method=="gower-l"||method=="gower-"||method=="gower"||method=="gowe"||method=="gow"||method=="gl"||method==12){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1])/(0.5*(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1])+table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))
+         }
+        }
+       }
+
+     ######## The Russell & Rao Distance ########
+      if(method == "russell-rao"||method=="russell-ra"||method=="russell-r"||method=="russell-"||method=="russell"||method=="russel"||method=="russe"||method=="russ"||method=="rus"||method=="rr"||method==13){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2])/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,1]))
+         }
+        }
+       }
+
+     ######## The Ochiai I (or Otsuka & Ochiai, or Cosine, or Fowlkes and Mallows Index) Distance ########
+      if(method == "Ochiai I"||method=="ochiai I"||method=="o1"||method=="oi"||method == "Cosine"||method=="cosine"||method=="cos"||method == "Otsuka-Ochiai"||method=="otsuka-ochiai"||method=="oo"||method == "Fowlkes-Mallows"||method=="fowlkes-mallows"||method=="fm"||method==14){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((table(m[i,],m[j,])[2,2])/(sqrt((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]))))
+         }
+        }
+       }
+
+     ######## The Forbes I Distance ########
+      if(method == "Forbes I"||method=="forbes I"||method=="f1"||method=="fi"||method==15){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*(table(m[i,],m[j,])[2,2]))/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+     ######## The Forbes II Distance ########
+      if(method == "Forbes II"||method=="forbes II"||method=="f2"||method=="fii"||method==16){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*(table(m[i,],m[j,])[2,2])-(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]))/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*(min((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1]),(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]))-(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]))))
+         }
+        }
+       }
+
+     ######## The Fossum Distance ########
+      if(method == "Fossum"||method == "Fossu"||method == "Foss"||method == "Fos"||method=="fossum"||method=="fossu"||method=="foss"||method=="fos"||method==17){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*((table(m[i,],m[j,])[2,2]-0.5)^2))/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+     ######## The Sorgenfrei Distance ########
+      if(method == "Sorgenfrei"||method == "Sorgenfre"||method == "Sorgenfr"||method == "Sorgenf"||method == "Sorgen"||method == "Sorge"||method == "Sorg"||method=="sorgenfrei"||method=="sorgenfre"||method=="sorgenfr"||method=="sorgenf"||method=="sorgen"||method=="sorge"||method=="sorg"||method==18){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(((table(m[i,],m[j,])[2,2])^2)/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+      ######## The Mountford Distance ########
+       if(method == "Mountford"||method=="mountford"||method=="mount"||method==19){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(table(m[i,],m[j,])[2,2]/(0.5*(table(m[i,],m[j,])[2,2]*table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[2,2]*table(m[i,],m[j,])[1,2])+table(m[i,],m[j,])[1,2]*table(m[i,],m[j,])[2,1]))
+         }
+        }
+       }
+
+     ######## The McConnaughey Distance ########
+      if(method == "McConnaughey"||method=="Mcconnaughey"||method=="mcconnaughey"||method=="mccon"||method==20){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-((((table(m[i,],m[j,])[2,2])^2)-(table(m[i,],m[j,])[1,2]*table(m[i,],m[j,])[2,1]))/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+     ######## The Tarwid Distance ########
+      if(method == "Tarwid"||method=="tarwid"||method=="tar"||method==21){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*(table(m[i,],m[j,])[2,2])-(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]))/((table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]+table(m[i,],m[j,])[1,1])*(table(m[i,],m[j,])[2,2])+(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[2,1])*(table(m[i,],m[j,])[2,2]+table(m[i,],m[j,])[1,2])))
+         }
+        }
+       }
+
+     ######## The Kulczynski I Distance ########
+      if(method == "Kulczynski I"||method=="kulczynski I"||method=="kul1"||method=="kuli"||method==22){
+        for(i in 1:nrow(m)){
+         for(j in 1:nrow(m)){
+            dist.mat[i,j] <- 1-(table(m[i,],m[j,])[2,2]/(table(m[i,],m[j,])[1,2]+table(m[i,],m[j,])[2,1]))
+         }
+        }
+       }
+    return(as.dist(dist.mat, diag = diag, upper = upper))
+  }
+ }
+}
