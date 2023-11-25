@@ -1,12 +1,12 @@
 ## Example Matrix:
-w <- c(1,0,0,1,1,0,1,1,1)
-x <- c(0,1,0,0,0,1,0,0,1)
-y <- c(0,0,1,0,0,0,0,0,1)
-z <- c(1,1,0,0,0,1,0,0,0)
+#w <- c(1,0,0,1,1,0,1,1,1)
+#x <- c(0,1,0,0,0,1,0,0,1)
+#y <- c(0,0,1,0,0,0,0,0,1)
+#z <- c(1,1,0,0,0,1,0,0,0)
 
 
-m <- cbind(w,x,y,z)
-m
+#m <- cbind(w,x,y,z)
+#m
 
 
 binary.dist <- function(m, method = "jaccard", row.dist = FALSE, diag = FALSE, upper = FALSE){
